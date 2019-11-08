@@ -1,18 +1,35 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1 v-if="date">Promotion starts: {{date}}</h1>
+    <ul>
+      <prize-item v-for="prize in prizes" :key="prize.id" :prize="prize"/>
+    </ul>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import moment from 'moment'
+import PrizeItem from '../components/PrizeItem.vue'
 
 export default {
   name: 'home',
-  components: {
-    HelloWorld
+  components: { PrizeItem },
+  data() {
+    return {
+      prizes: [],
+      date: null,
+    }
+  },
+  created() {
+    this.$http.get('prizes/teaser')
+      .then((res) => {
+        this.prizes = res.data.prizes;
+      });
+
+    this.$http.get('settings/promotion')
+      .then((res) => {
+        this.date = moment(res.data.promotion_start).format('D.M.YYYY.')
+      });
   }
 }
 </script>
